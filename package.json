@@ -1,0 +1,27 @@
+{
+  "name": "voicegov-scanner",
+  "version": "1.0.0",
+  "description": "VoiceGov 500 — Automated voice bot governance scanner by TheBHTLabs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "init-db": "node scripts/init-db.js",
+    "seed": "node scripts/seed-targets.js",
+    "stats": "node scripts/db-stats.js",
+    "dial": "node caller/dial-one.js",
+    "schedule": "node caller/scheduler.js",
+    "leaderboard": "node web/leaderboard-server.js",
+    "linkedin": "node content/linkedin-gen.js"
+  },
+  "dependencies": {
+    "twilio": "^4.23.0",
+    "@deepgram/sdk": "^3.5.0",
+    "better-sqlite3": "^11.0.0",
+    "express": "^4.18.0",
+    "ws": "^8.16.0",
+    "node-cron": "^3.0.3",
+    "pino": "^8.19.0"
+  },
+  "author": "BHT Solutions LLC",
+  "license": "UNLICENSED"
+}

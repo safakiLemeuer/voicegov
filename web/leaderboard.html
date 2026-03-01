@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceGov 500 — Live AI Voice Bot Governance Leaderboard | TheBHTLabs</title>
+<meta name="description" content="Real-time governance scores for Fortune 500 voice bots. We call them. We score them. We publish the results.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0A0A0A;color:#E5E5E5;min-height:100vh}
+.container{max-width:1100px;margin:0 auto;padding:40px 24px}
+header{text-align:center;margin-bottom:48px}
+.logo{font-family:'JetBrains Mono',monospace;font-size:13px;color:#06B6D4;letter-spacing:2px;margin-bottom:8px}
+h1{font-size:clamp(28px,5vw,48px);font-weight:900;letter-spacing:-0.03em;line-height:1.1;margin-bottom:12px}
+h1 span{color:#06B6D4}
+.subtitle{color:#737373;font-size:15px;max-width:600px;margin:0 auto;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:32px 0}
+.stat{background:#171717;border:1px solid #262626;border-radius:12px;padding:16px;text-align:center}
+.stat-value{font-size:28px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#06B6D4}
+.stat-label{font-size:11px;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.filter-btn{padding:8px 16px;border-radius:8px;border:1px solid #262626;background:#171717;color:#A3A3A3;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:#06B6D4;color:#0A0A0A;border-color:#06B6D4}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:12px 16px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#525252;border-bottom:1px solid #262626}
+td{padding:14px 16px;border-bottom:1px solid #1A1A1A;font-size:14px}
+tr:hover td{background:#111}
+.rank{font-family:'JetBrains Mono',monospace;font-weight:700;color:#525252;width:40px}
+.company{font-weight:700}
+.sector-tag{font-size:10px;padding:3px 8px;border-radius:4px;background:#1A1A1A;color:#737373;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.score{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:16px}
+.score-high{color:#10B981}.score-mid{color:#F59E0B}.score-low{color:#EF4444}
+.grade{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;font-family:'JetBrains Mono',monospace}
+.grade-A{background:#10B98120;color:#10B981;border:1px solid #10B98140}
+.grade-B{background:#3B82F620;color:#3B82F6;border:1px solid #3B82F640}
+.grade-C{background:#F59E0B20;color:#F59E0B;border:1px solid #F59E0B40}
+.grade-D{background:#F9731620;color:#F97316;border:1px solid #F9731640}
+.grade-F{background:#EF444420;color:#EF4444;border:1px solid #EF444440}
+.empty{text-align:center;padding:48px;color:#525252}
+footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid #1A1A1A;color:#525252;font-size:12px}
+footer a{color:#06B6D4;text-decoration:none}
+@media(max-width:640px){th:nth-child(5),td:nth-child(5){display:none}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">VOICEGOV 500 · THEBHTLABS</div>
+    <h1>Live AI Voice Bot <span>Governance</span> Scores</h1>
+    <p class="subtitle">We call Fortune 500 customer service lines, transcribe in real-time, and score their voice bots on escape path, AI disclosure, and resolution. Updated daily.</p>
+  </header>
+
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-value" id="scanned">0</div><div class="stat-label">Companies Scanned</div></div>
+    <div class="stat"><div class="stat-value" id="avgScore">0</div><div class="stat-label">Avg Score</div></div>
+    <div class="stat"><div class="stat-value" id="bestName">—</div><div class="stat-label">Best Score</div></div>
+    <div class="stat"><div class="stat-value" id="worstName">—</div><div class="stat-label">Worst Score</div></div>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-sector="all">All Sectors</button>
+  </div>
+
+  <table>
+    <thead><tr>
+      <th>#</th><th>Company</th><th>Sector</th><th>Score</th><th>Annoyance</th><th>Scans</th>
+    </tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <footer>
+    <p>VoiceGov 500 by <a href="https://thebhtlabs.com">TheBHTLabs</a> · Scoring: Escape Path 40% · AI Disclosure 35% · Resolution 25%</p>
+    <p style="margin-top:8px">© 2026 BHT Solutions LLC · Methodology aligned with NIST AI RMF · EU AI Act · ISO 42001</p>
+  </footer>
+</div>
+
+<script>
+const API = window.location.origin;
+
+async function load(sector='all') {
+  try {
+    const [data, summary, sectors] = await Promise.all([
+      fetch(`${API}/api/data?sector=${sector}`).then(r=>r.json()),
+      fetch(`${API}/api/summary`).then(r=>r.json()),
+      fetch(`${API}/api/sectors`).then(r=>r.json()),
+    ]);
+
+    document.getElementById('scanned').textContent = summary.scanned + '/500';
+    document.getElementById('avgScore').textContent = summary.avgScore + '/100';
+    document.getElementById('bestName').textContent = summary.best.name;
+    document.getElementById('worstName').textContent = summary.worst.name;
+
+    // Filters
+    const filtersEl = document.getElementById('filters');
+    filtersEl.innerHTML = '<button class="filter-btn '+(sector==='all'?'active':'')+'" data-sector="all">All</button>' +
+      sectors.map(s => '<button class="filter-btn '+(sector===s?'active':'')+'" data-sector="'+s+'">'+s+'</button>').join('');
+    filtersEl.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => load(btn.dataset.sector));
+    });
+
+    // Table
+    const tbody = document.getElementById('tbody');
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">No scans yet. Scanner starts Mon-Fri 9am EST.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map((row, i) => {
+      const sc = row.latest_score >= 70 ? 'score-high' : row.latest_score >= 40 ? 'score-mid' : 'score-low';
+      return `<tr>
+        <td class="rank">${i+1}</td>
+        <td class="company">${row.name}</td>
+        <td><span class="sector-tag">${row.sector}</span></td>
+        <td class="score ${sc}">${row.latest_score}</td>
+        <td><div class="grade grade-${row.annoyance_grade}">${row.annoyance_grade}</div></td>
+        <td style="color:#525252">${row.scan_count}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="6" class="empty">Loading scanner data...</td></tr>';
+  }
+}
+load();
+</script>
+</body>
+</html>
