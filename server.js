@@ -274,6 +274,90 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
+// ═══ ADMIN API ROUTES ═══
+
+// Serve admin dashboard
+app.get('/admin', (req, res) => {
+  const path = require('path');
+  res.sendFile(path.join(__dirname, 'web', 'admin.html'));
+});
+
+// Get all scans with target names
+app.get('/api/admin/scans', (req, res) => {
+  const scans = db.prepare(`
+    SELECT s.*, t.name, t.sector FROM scans s 
+    LEFT JOIN targets t ON s.target_id = t.id 
+    ORDER BY s.scanned_at DESC LIMIT 200
+  `).all();
+  res.json(scans);
+});
+
+// Add a target
+app.post('/api/admin/targets', (req, res) => {
+  const { name, phone, sector, website, category, fortune_rank } = req.body;
+  if (!name || !phone) return res.status(400).json({ error: 'Name and phone required' });
+  try {
+    const result = db.prepare(
+      "INSERT INTO targets (name, phone, sector, category, fortune_rank, website, status) VALUES (?,?,?,?,?,?,'pending')"
+    ).run(name, phone, sector || 'other', category || '', fortune_rank || 0, website || '');
+    log.info({ name, phone }, 'Target added via admin');
+    res.json({ id: result.lastInsertRowid, name, phone, sector });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Delete a target
+app.delete('/api/admin/targets/:id', (req, res) => {
+  try {
+    db.prepare('DELETE FROM scans WHERE target_id = ?').run(req.params.id);
+    db.prepare('DELETE FROM leaderboard WHERE target_id = ?').run(req.params.id);
+    db.prepare('DELETE FROM targets WHERE id = ?').run(req.params.id);
+    log.info({ id: req.params.id }, 'Target deleted via admin');
+    res.json({ deleted: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Manual dial from admin
+app.post('/api/admin/dial', async (req, res) => {
+  const { targetId } = req.body;
+  const target = db.prepare('SELECT * FROM targets WHERE id = ?').get(targetId);
+  if (!target) return res.status(404).json({ error: 'Target not found' });
+
+  try {
+    const twilio = require('twilio');
+    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    const host = process.env.HOST || 'voicegov.thebhtlabs.com';
+
+    const scanId = db.prepare(
+      "INSERT INTO scans (target_id, status) VALUES (?, 'initiated')"
+    ).run(target.id).lastInsertRowid;
+
+    const call = await client.calls.create({
+      to: target.phone,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      url: `https://${host}/voice/connect`,
+      statusCallback: `https://${host}/voice/status`,
+      statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
+      statusCallbackMethod: 'POST',
+      timeout: 30,
+      machineDetection: 'Enable',
+      record: false,
+    });
+
+    db.prepare('UPDATE scans SET call_sid = ? WHERE id = ?').run(call.sid, scanId);
+    db.prepare("UPDATE targets SET status = 'scanning', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(target.id);
+
+    log.info({ target: target.name, callSid: call.sid }, 'Manual dial from admin');
+    res.json({ callSid: call.sid, scanId, target: target.name });
+  } catch (e) {
+    log.error({ err: e.message }, 'Admin dial failed');
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ═══ START ═══
 server.listen(PORT, () => {
   log.info({ port: PORT }, 'VoiceGov Scanner running');
