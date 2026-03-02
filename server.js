@@ -219,9 +219,43 @@ app.get('/api/leaderboard', (req, res) => {
 });
 
 app.get('/api/scan/:id', (req, res) => {
-  const scan = db.prepare('SELECT s.*, t.name, t.sector FROM scans s JOIN targets t ON s.target_id = t.id WHERE s.id = ?').get(req.params.id);
+  const scan = db.prepare('SELECT s.*, t.name, t.sector FROM scans s JOIN targets t ON s.target_id = t.id WHERE s.id = ? OR s.target_id = ? ORDER BY s.scanned_at DESC LIMIT 1').get(req.params.id, req.params.id);
   if (!scan) return res.status(404).json({ error: 'Scan not found' });
   res.json(scan);
+});
+
+// ═══ TARGET CRUD ═══
+app.post('/api/targets', (req, res) => {
+  const { name, phone, sector, website } = req.body;
+  if (!name || !phone) return res.status(400).json({ error: 'Name and phone required' });
+  try {
+    const result = db.prepare(
+      "INSERT INTO targets (name, phone, sector, website, status) VALUES (?, ?, ?, ?, 'pending')"
+    ).run(name, phone, sector || 'other', website || '');
+    res.json({ id: result.lastInsertRowid, success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.put('/api/targets/:id', (req, res) => {
+  const { name, phone, sector, website } = req.body;
+  try {
+    db.prepare('UPDATE targets SET name=?, phone=?, sector=?, website=?, updated_at=CURRENT_TIMESTAMP WHERE id=?')
+      .run(name, phone, sector, website || '', req.params.id);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete('/api/targets/:id', (req, res) => {
+  try {
+    db.prepare('DELETE FROM targets WHERE id=?').run(req.params.id);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.get('/api/stats', (req, res) => {

@@ -13,6 +13,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'leaderboard.html'));
 });
 
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
 app.get('/api/data', (req, res) => {
   const { sector, sort } = req.query;
   let query = 'SELECT * FROM leaderboard';

@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceGov Admin — Scanner Control Center</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060608; --surface: #0E0E12; --surface2: #16161D; --surface3: #1E1E28;
+  --border: #252530; --border2: #33334A;
+  --text: #E8E8F0; --text2: #9999B0; --text3: #666680;
+  --cyan: #00D4FF; --cyan-dim: #00D4FF20; --cyan-glow: #00D4FF40;
+  --green: #00E676; --green-dim: #00E67620;
+  --red: #FF3D71; --red-dim: #FF3D7120;
+  --amber: #FFB300; --amber-dim: #FFB30020;
+  --purple: #B388FF; --purple-dim: #B388FF20;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+::selection { background:var(--cyan); color:var(--bg); }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--surface); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+/* ═══ LOGIN OVERLAY ═══ */
+#login-overlay {
+  position:fixed; inset:0; z-index:1000; background:var(--bg);
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:24px;
+}
+#login-overlay.hidden { display:none; }
+.login-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:40px; width:360px; text-align:center; }
+.login-box h2 { font-family:'IBM Plex Mono',monospace; color:var(--cyan); font-size:13px; letter-spacing:3px; margin-bottom:24px; }
+.login-box input {
+  width:100%; padding:12px 16px; background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); font-size:14px; font-family:'Outfit',sans-serif;
+  margin-bottom:12px; outline:none; transition:border .2s;
+}
+.login-box input:focus { border-color:var(--cyan); }
+.login-box button {
+  width:100%; padding:12px; background:var(--cyan); color:var(--bg); border:none;
+  border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; transition:opacity .2s;
+}
+.login-box button:hover { opacity:.85; }
+.login-error { color:var(--red); font-size:12px; margin-top:8px; min-height:16px; }
+
+/* ═══ LAYOUT ═══ */
+.app { display:grid; grid-template-columns:220px 1fr; min-height:100vh; }
+.sidebar {
+  background:var(--surface); border-right:1px solid var(--border);
+  padding:24px 0; display:flex; flex-direction:column;
+}
+.sidebar-logo {
+  font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:3px;
+  color:var(--cyan); padding:0 20px; margin-bottom:32px;
+}
+.sidebar-logo span { display:block; color:var(--text3); font-size:9px; letter-spacing:1px; margin-top:4px; }
+.nav-item {
+  padding:10px 20px; font-size:13px; font-weight:500; color:var(--text2);
+  cursor:pointer; transition:all .15s; border-left:2px solid transparent;
+  display:flex; align-items:center; gap:10px;
+}
+.nav-item:hover { color:var(--text); background:var(--surface2); }
+.nav-item.active { color:var(--cyan); border-left-color:var(--cyan); background:var(--cyan-dim); }
+.nav-icon { width:16px; opacity:.6; font-size:14px; }
+.nav-divider { height:1px; background:var(--border); margin:16px 20px; }
+.sidebar-footer { margin-top:auto; padding:16px 20px; }
+.sidebar-footer .status { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--text3); }
+.status-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
+.status-dot.off { background:var(--red); }
+
+.main { padding:28px 32px; overflow-y:auto; max-height:100vh; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* ═══ HEADER ═══ */
+.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; }
+.page-title { font-size:24px; font-weight:800; letter-spacing:-0.02em; }
+.page-subtitle { font-size:13px; color:var(--text3); margin-top:4px; }
+
+/* ═══ CARDS ═══ */
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:28px; }
+.card {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px;
+}
+.card-label { font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text3); margin-bottom:6px; }
+.card-value { font-family:'IBM Plex Mono',monospace; font-size:24px; font-weight:700; }
+.card-value.cyan { color:var(--cyan); }
+.card-value.green { color:var(--green); }
+.card-value.red { color:var(--red); }
+.card-value.amber { color:var(--amber); }
+.card-delta { font-size:11px; color:var(--text3); margin-top:4px; }
+
+/* ═══ TABLES ═══ */
+.table-wrap {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden;
+}
+.table-header { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border); }
+.table-title { font-size:14px; font-weight:700; }
+.table-actions { display:flex; gap:8px; }
+table { width:100%; border-collapse:collapse; }
+th { text-align:left; padding:10px 16px; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text3); border-bottom:1px solid var(--border); font-weight:600; }
+td { padding:12px 16px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text2); }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--surface2); }
+
+/* ═══ BUTTONS ═══ */
+.btn {
+  padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600;
+  cursor:pointer; transition:all .15s; border:1px solid var(--border);
+  background:var(--surface2); color:var(--text); font-family:'Outfit',sans-serif;
+}
+.btn:hover { border-color:var(--border2); background:var(--surface3); }
+.btn-cyan { background:var(--cyan); color:var(--bg); border-color:var(--cyan); }
+.btn-cyan:hover { opacity:.85; }
+.btn-red { background:var(--red-dim); color:var(--red); border-color:var(--red); }
+.btn-green { background:var(--green-dim); color:var(--green); border-color:var(--green); }
+.btn-sm { padding:5px 10px; font-size:11px; }
+.btn-icon { width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; }
+
+/* ═══ BADGES ═══ */
+.badge { padding:3px 8px; border-radius:4px; font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+.badge-cyan { background:var(--cyan-dim); color:var(--cyan); }
+.badge-green { background:var(--green-dim); color:var(--green); }
+.badge-red { background:var(--red-dim); color:var(--red); }
+.badge-amber { background:var(--amber-dim); color:var(--amber); }
+.badge-purple { background:var(--purple-dim); color:var(--purple); }
+
+.grade-badge {
+  width:32px; height:32px; border-radius:6px; display:inline-flex;
+  align-items:center; justify-content:center; font-weight:800; font-size:13px;
+  font-family:'IBM Plex Mono',monospace;
+}
+.grade-A { background:#00E67625; color:#00E676; }
+.grade-B { background:#00D4FF25; color:#00D4FF; }
+.grade-C { background:#FFB30025; color:#FFB300; }
+.grade-D { background:#FF980025; color:#FF9800; }
+.grade-F { background:#FF3D7125; color:#FF3D71; }
+
+/* ═══ FORMS ═══ */
+.form-group { margin-bottom:16px; }
+.form-label { display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text3); margin-bottom:6px; }
+.form-input, .form-select, .form-textarea {
+  width:100%; padding:10px 14px; background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); font-size:13px; font-family:'Outfit',sans-serif; outline:none;
+  transition:border .2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--cyan); }
+.form-textarea { resize:vertical; min-height:80px; }
+.form-select { appearance:none; cursor:pointer; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+/* ═══ MODAL ═══ */
+.modal-overlay {
+  position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+}
+.modal-overlay.hidden { display:none; }
+.modal {
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:28px; width:480px; max-width:90vw; max-height:85vh; overflow-y:auto;
+}
+.modal h3 { font-size:18px; font-weight:700; margin-bottom:20px; }
+
+/* ═══ TRANSCRIPT VIEWER ═══ */
+.transcript {
+  background:var(--bg); border:1px solid var(--border); border-radius:8px;
+  padding:16px; font-family:'IBM Plex Mono',monospace; font-size:12px;
+  line-height:1.8; color:var(--text2); max-height:300px; overflow-y:auto; white-space:pre-wrap;
+}
+
+/* ═══ CHART PLACEHOLDER ═══ */
+.chart-area {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:20px; margin-bottom:20px;
+}
+.chart-title { font-size:13px; font-weight:700; margin-bottom:16px; }
+.bar-chart { display:flex; flex-direction:column; gap:8px; }
+.bar-row { display:flex; align-items:center; gap:12px; }
+.bar-label { width:100px; font-size:12px; color:var(--text2); text-align:right; }
+.bar-track { flex:1; height:24px; background:var(--surface2); border-radius:4px; overflow:hidden; position:relative; }
+.bar-fill { height:100%; border-radius:4px; transition:width .6s ease; display:flex; align-items:center; padding-left:8px; font-size:10px; font-weight:700; color:var(--bg); }
+.bar-fill.cyan { background:var(--cyan); }
+.bar-fill.green { background:var(--green); }
+.bar-fill.red { background:var(--red); }
+.bar-fill.amber { background:var(--amber); }
+.bar-fill.purple { background:var(--purple); }
+
+/* ═══ LEGAL PANEL ═══ */
+.legal-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:20px; margin-bottom:16px;
+}
+.legal-card h4 { font-size:14px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.legal-status { font-size:11px; padding:2px 8px; border-radius:4px; font-weight:600; }
+.legal-ok { background:var(--green-dim); color:var(--green); }
+.legal-warn { background:var(--amber-dim); color:var(--amber); }
+.legal-list { list-style:none; }
+.legal-list li { padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; color:var(--text2); display:flex; align-items:center; gap:8px; }
+.legal-list li:last-child { border-bottom:none; }
+.check { color:var(--green); }
+.cross { color:var(--red); }
+
+/* ═══ CONFIG ═══ */
+.config-section { margin-bottom:24px; }
+.config-section h4 { font-size:14px; font-weight:700; margin-bottom:12px; }
+.weight-slider { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.weight-slider label { width:120px; font-size:13px; color:var(--text2); }
+.weight-slider input[type="range"] { flex:1; accent-color:var(--cyan); }
+.weight-slider .weight-val { font-family:'IBM Plex Mono',monospace; font-size:13px; width:40px; text-align:right; color:var(--cyan); }
+.phrase-list { display:flex; flex-wrap:wrap; gap:6px; }
+.phrase-tag {
+  padding:4px 10px; background:var(--surface2); border:1px solid var(--border);
+  border-radius:6px; font-size:11px; color:var(--text2); display:flex; align-items:center; gap:6px;
+}
+.phrase-tag .remove { cursor:pointer; color:var(--red); font-size:13px; }
+
+/* ═══ EMPTY STATE ═══ */
+.empty-state { text-align:center; padding:48px; color:var(--text3); font-size:14px; }
+
+/* ═══ TOAST ═══ */
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:900;
+  background:var(--surface2); border:1px solid var(--border); border-radius:10px;
+  padding:12px 20px; font-size:13px; color:var(--text);
+  transform:translateY(100px); opacity:0; transition:all .3s;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.success { border-color:var(--green); }
+.toast.error { border-color:var(--red); }
+
+@media(max-width:768px) {
+  .app { grid-template-columns:1fr; }
+  .sidebar { display:none; }
+  .main { padding:16px; }
+  .form-row { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="login-overlay">
+  <div class="login-box">
+    <h2>VOICEGOV ADMIN</h2>
+    <input type="password" id="login-pass" placeholder="Admin password" autofocus>
+    <button onclick="doLogin()">Access Dashboard</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      VOICEGOV<span>ADMIN CONSOLE v1.0</span>
+    </div>
+    <div class="nav-item active" data-page="dashboard">
+      <span class="nav-icon">◆</span> Dashboard
+    </div>
+    <div class="nav-item" data-page="targets">
+      <span class="nav-icon">☎</span> Targets
+    </div>
+    <div class="nav-item" data-page="scans">
+      <span class="nav-icon">◎</span> Scan Results
+    </div>
+    <div class="nav-item" data-page="analytics">
+      <span class="nav-icon">▤</span> Analytics
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-item" data-page="legal">
+      <span class="nav-icon">⚖</span> Legal Compliance
+    </div>
+    <div class="nav-item" data-page="config">
+      <span class="nav-icon">⚙</span> Scan Config
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-item" data-page="controls">
+      <span class="nav-icon">▶</span> Call Controls
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="status">
+        <span class="status-dot" id="scheduler-dot"></span>
+        <span id="scheduler-label">Scheduler: checking...</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <!-- ═══ PAGE: DASHBOARD ═══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Scanner Dashboard</div>
+          <div class="page-subtitle">VoiceGov 500 — Real-time scanner control center</div>
+        </div>
+        <button class="btn btn-cyan" onclick="refreshAll()">↻ Refresh</button>
+      </div>
+
+      <div class="cards">
+        <div class="card"><div class="card-label">Total Targets</div><div class="card-value cyan" id="d-targets">—</div></div>
+        <div class="card"><div class="card-label">Scans Completed</div><div class="card-value green" id="d-scans">—</div></div>
+        <div class="card"><div class="card-label">Avg Score</div><div class="card-value amber" id="d-avg">—</div></div>
+        <div class="card"><div class="card-label">Active Calls</div><div class="card-value cyan" id="d-active">—</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">Recent Scans</span>
+        </div>
+        <table>
+          <thead><tr><th>Company</th><th>Sector</th><th>Score</th><th>Grade</th><th>Duration</th><th>Date</th></tr></thead>
+          <tbody id="d-recent"><tr><td colspan="6" class="empty-state">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: TARGETS ═══ -->
+    <div class="page" id="page-targets">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Target Management</div>
+          <div class="page-subtitle">Manage companies and phone numbers to scan</div>
+        </div>
+        <button class="btn btn-cyan" onclick="showAddTarget()">+ Add Target</button>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title" id="targets-count">Targets (0)</span>
+          <div class="table-actions">
+            <select class="form-select" id="targets-sector-filter" onchange="loadTargets()" style="width:140px;padding:6px 10px;font-size:12px">
+              <option value="">All Sectors</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Name</th><th>Phone</th><th>Sector</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="targets-tbody"><tr><td colspan="5" class="empty-state">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: SCANS ═══ -->
+    <div class="page" id="page-scans">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Scan Results</div>
+          <div class="page-subtitle">Detailed results from every call</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">All Scans</span>
+        </div>
+        <table>
+          <thead><tr><th>Company</th><th>Score</th><th>Escape</th><th>Disclosure</th><th>Resolution</th><th>Grade</th><th>Duration</th><th>Date</th><th></th></tr></thead>
+          <tbody id="scans-tbody"><tr><td colspan="9" class="empty-state">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: ANALYTICS ═══ -->
+    <div class="page" id="page-analytics">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Analytics</div>
+          <div class="page-subtitle">Scoring breakdowns across sectors and targets</div>
+        </div>
+      </div>
+
+      <div class="cards" id="analytics-cards">
+        <div class="card"><div class="card-label">Best Performer</div><div class="card-value green" id="a-best" style="font-size:16px">—</div></div>
+        <div class="card"><div class="card-label">Worst Performer</div><div class="card-value red" id="a-worst" style="font-size:16px">—</div></div>
+        <div class="card"><div class="card-label">Grade A Count</div><div class="card-value green" id="a-gradeA">—</div></div>
+        <div class="card"><div class="card-label">Grade F Count</div><div class="card-value red" id="a-gradeF">—</div></div>
+      </div>
+
+      <div class="chart-area">
+        <div class="chart-title">Average Score by Sector</div>
+        <div class="bar-chart" id="sector-chart"></div>
+      </div>
+
+      <div class="chart-area">
+        <div class="chart-title">Score Distribution (Escape / Disclosure / Resolution)</div>
+        <div class="bar-chart" id="component-chart"></div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: LEGAL ═══ -->
+    <div class="page" id="page-legal">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Legal Compliance</div>
+          <div class="page-subtitle">Ensure every scan operates within legal boundaries</div>
+        </div>
+      </div>
+
+      <div class="legal-card">
+        <h4>⚖ Consent Framework <span class="legal-status legal-ok">COMPLIANT</span></h4>
+        <ul class="legal-list">
+          <li><span class="check">✓</span> One-party consent: Caller (BHT) is a party to the call</li>
+          <li><span class="check">✓</span> Calling published, public customer service numbers only</li>
+          <li><span class="check">✓</span> No audio recording — transcription only via Deepgram</li>
+          <li><span class="check">✓</span> Caller identification message plays at call start</li>
+          <li><span class="check">✓</span> Twilio number registered to BHT Solutions LLC</li>
+        </ul>
+      </div>
+
+      <div class="legal-card">
+        <h4>📞 Caller Identification Message</h4>
+        <div class="form-group">
+          <label class="form-label">Message played when call connects</label>
+          <textarea class="form-textarea" id="legal-disclosure" rows="3">This is an automated quality assessment call from BHT Solutions. This call is for customer service evaluation purposes. This call may be monitored for quality assurance.</textarea>
+        </div>
+        <button class="btn btn-cyan btn-sm" onclick="saveLegalConfig()">Save Disclosure</button>
+      </div>
+
+      <div class="legal-card">
+        <h4>🚫 No-Call List <span class="legal-status legal-ok" id="nocall-status">0 NUMBERS</span></h4>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:12px">Numbers that will never be called, even if in the target database.</p>
+        <div class="form-row" style="margin-bottom:12px">
+          <input class="form-input" id="nocall-input" placeholder="+1XXXXXXXXXX">
+          <button class="btn btn-sm" onclick="addNoCall()">Add to No-Call List</button>
+        </div>
+        <div id="nocall-list"></div>
+      </div>
+
+      <div class="legal-card">
+        <h4>📋 Compliance Checklist</h4>
+        <ul class="legal-list">
+          <li><span class="check">✓</span> FTC Telemarketing Sales Rule: Exempt — not selling anything</li>
+          <li><span class="check">✓</span> TCPA: Calling business lines, not mobile consumers</li>
+          <li><span class="check">✓</span> State laws: Ohio one-party consent (Twilio number origin)</li>
+          <li><span class="check">✓</span> Klearcom precedent: Similar business model operating commercially</li>
+          <li><span class="check">✓</span> Published scores are protected opinion (Consumer Reports model)</li>
+          <li><span class="check">✓</span> No PII collected — only public-facing IVR responses analyzed</li>
+        </ul>
+      </div>
+
+      <div class="legal-card">
+        <h4>📊 Call Log</h4>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:12px">Every call is logged with timestamp, number called, duration, and purpose. Retain for 3 years per FTC guidelines.</p>
+        <div class="table-wrap" style="border:none">
+          <table>
+            <thead><tr><th>Date</th><th>Target</th><th>Phone</th><th>Duration</th><th>Status</th></tr></thead>
+            <tbody id="call-log-tbody"><tr><td colspan="5" class="empty-state">Logs populate after first scan</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: CONFIG ═══ -->
+    <div class="page" id="page-config">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Scan Configuration</div>
+          <div class="page-subtitle">Adjust scoring weights, detection phrases, and scan parameters</div>
+        </div>
+        <button class="btn btn-cyan" onclick="saveConfig()">Save Configuration</button>
+      </div>
+
+      <div class="config-section">
+        <h4>Scoring Weights</h4>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+          <div class="weight-slider">
+            <label>Escape Path</label>
+            <input type="range" min="0" max="100" value="40" id="w-escape" oninput="updateWeightDisplay()">
+            <span class="weight-val" id="wv-escape">40%</span>
+          </div>
+          <div class="weight-slider">
+            <label>AI Disclosure</label>
+            <input type="range" min="0" max="100" value="35" id="w-disclosure" oninput="updateWeightDisplay()">
+            <span class="weight-val" id="wv-disclosure">35%</span>
+          </div>
+          <div class="weight-slider">
+            <label>Resolution</label>
+            <input type="range" min="0" max="100" value="25" id="w-resolution" oninput="updateWeightDisplay()">
+            <span class="weight-val" id="wv-resolution">25%</span>
+          </div>
+          <div style="font-size:12px;color:var(--text3);margin-top:8px">Total: <span id="w-total" style="color:var(--cyan)">100%</span> (must equal 100%)</div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h4>Disclosure Detection Phrases</h4>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Phrases the scorer looks for to detect AI/automation disclosure in transcripts.</p>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+          <div class="phrase-list" id="disclosure-phrases"></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <input class="form-input" id="new-phrase" placeholder="Add detection phrase..." style="flex:1">
+            <button class="btn btn-sm" onclick="addPhrase()">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h4>Scan Parameters</h4>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Max Concurrent Calls</label>
+              <input class="form-input" type="number" id="cfg-concurrent" value="6" min="1" max="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Calls Per Day</label>
+              <input class="form-input" type="number" id="cfg-daily" value="50" min="1" max="200">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Call Timeout (seconds)</label>
+              <input class="form-input" type="number" id="cfg-timeout" value="120" min="30" max="300">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Scan Hours (EST)</label>
+              <input class="form-input" value="9:00 AM — 5:00 PM" readonly style="color:var(--text3)">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: CALL CONTROLS ═══ -->
+    <div class="page" id="page-controls">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Call Controls</div>
+          <div class="page-subtitle">Manual dial, scheduler control, and blacklist management</div>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card" style="cursor:pointer" onclick="toggleScheduler()">
+          <div class="card-label">Scheduler</div>
+          <div class="card-value" id="ctrl-scheduler" style="font-size:16px">—</div>
+          <div class="card-delta">Click to toggle</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Today's Calls</div>
+          <div class="card-value cyan" id="ctrl-today">0</div>
+          <div class="card-delta" id="ctrl-limit">Limit: 50</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Active Now</div>
+          <div class="card-value green" id="ctrl-active">0</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Queue</div>
+          <div class="card-value amber" id="ctrl-queue">0</div>
+          <div class="card-delta">Pending targets</div>
+        </div>
+      </div>
+
+      <div class="legal-card">
+        <h4>📞 Manual Dial</h4>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:12px">Scan a specific target immediately.</p>
+        <div class="form-row" style="margin-bottom:12px">
+          <select class="form-select" id="dial-target"></select>
+          <button class="btn btn-cyan" onclick="manualDial()">Dial Now</button>
+        </div>
+        <div id="dial-status" style="font-size:12px;color:var(--text3)"></div>
+      </div>
+
+      <div class="legal-card">
+        <h4>🚫 Blacklisted Numbers</h4>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:12px">Numbers permanently excluded from scanning.</p>
+        <div id="blacklist-display"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ TARGET MODAL ═══ -->
+<div class="modal-overlay hidden" id="target-modal">
+  <div class="modal">
+    <h3 id="target-modal-title">Add Target</h3>
+    <input type="hidden" id="target-edit-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Company Name</label>
+        <input class="form-input" id="tf-name" placeholder="Chase">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input class="form-input" id="tf-phone" placeholder="+18009359935">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Sector</label>
+        <select class="form-select" id="tf-sector">
+          <option value="banking">Banking</option><option value="insurance">Insurance</option>
+          <option value="airlines">Airlines</option><option value="telecom">Telecom</option>
+          <option value="healthcare">Healthcare</option><option value="retail">Retail</option>
+          <option value="tech">Tech</option><option value="utilities">Utilities</option>
+          <option value="federal">Federal</option><option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Website</label>
+        <input class="form-input" id="tf-website" placeholder="chase.com">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">
+      <button class="btn" onclick="closeModal('target-modal')">Cancel</button>
+      <button class="btn btn-cyan" onclick="saveTarget()">Save Target</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCAN DETAIL MODAL ═══ -->
+<div class="modal-overlay hidden" id="scan-modal">
+  <div class="modal" style="width:600px">
+    <h3>Scan Details</h3>
+    <div id="scan-detail-content"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:20px">
+      <button class="btn" onclick="closeModal('scan-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ CONFIG ═══
+const API_BASE = window.location.origin;
+const ADMIN_PASS = 'bht2026!voicegov'; // Change this!
+let isLoggedIn = false;
+
+// ═══ STATE ═══
+let noCallList = JSON.parse(localStorage.getItem('vg_nocall') || '[]');
+let disclosurePhrases = [
+  'automated system','virtual assistant','ai assistant','automated attendant',
+  'this call may be recorded','this is an automated','powered by ai',
+  'artificial intelligence','intelligent virtual','digital assistant',
+  'chatbot','voice assistant','automated service'
+];
+let scanConfig = {
+  escape_weight: 40, disclosure_weight: 35, resolution_weight: 25,
+  max_concurrent: 6, calls_per_day: 50, timeout: 120,
+};
+let schedulerActive = false;
+
+// ═══ LOGIN ═══
+function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  if (pass === ADMIN_PASS) {
+    isLoggedIn = true;
+    document.getElementById('login-overlay').classList.add('hidden');
+    refreshAll();
+  } else {
+    document.getElementById('login-error').textContent = 'Invalid password';
+  }
+}
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// ═══ NAVIGATION ═══
+document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-' + item.dataset.page).classList.add('active');
+    // Refresh data for the page
+    const page = item.dataset.page;
+    if (page === 'targets') loadTargets();
+    if (page === 'scans') loadScans();
+    if (page === 'analytics') loadAnalytics();
+    if (page === 'controls') loadControls();
+    if (page === 'legal') renderNoCallList();
+    if (page === 'config') renderConfig();
+  });
+});
+
+// ═══ API HELPERS ═══
+async function api(path) {
+  try {
+    const res = await fetch(API_BASE + path);
+    if (!res.ok) throw new Error(res.statusText);
+    return await res.json();
+  } catch (e) {
+    console.error('API error:', path, e);
+    return null;
+  }
+}
+
+function toast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function gradeHTML(grade) {
+  return `<span class="grade-badge grade-${grade}">${grade}</span>`;
+}
+
+function statusBadge(status) {
+  const colors = { pending:'badge-cyan', scanning:'badge-amber', scanned:'badge-green', completed:'badge-green', failed:'badge-red', errored:'badge-red' };
+  return `<span class="badge ${colors[status]||'badge-cyan'}">${status}</span>`;
+}
+
+// ═══ DASHBOARD ═══
+async function refreshAll() {
+  const [health, stats, leaderboard] = await Promise.all([
+    api('/health'), api('/api/stats'), api('/api/leaderboard')
+  ]);
+
+  if (health) {
+    document.getElementById('d-targets').textContent = health.targets || 0;
+    document.getElementById('d-active').textContent = health.activeCalls || 0;
+    document.getElementById('scheduler-dot').className = 'status-dot' + (health.activeCalls >= 0 ? '' : ' off');
+    document.getElementById('scheduler-label').textContent = 'API: Online';
+  }
+  if (stats) {
+    document.getElementById('d-scans').textContent = stats.completed_scans || 0;
+    document.getElementById('d-avg').textContent = (stats.average_score || 0) + '/100';
+  }
+
+  // Recent scans
+  if (leaderboard && leaderboard.length > 0) {
+    document.getElementById('d-recent').innerHTML = leaderboard.slice(0, 10).map(r => `
+      <tr>
+        <td style="font-weight:600;color:var(--text)">${r.name}</td>
+        <td><span class="badge badge-purple">${r.sector}</span></td>
+        <td style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:${r.latest_score>=70?'var(--green)':r.latest_score>=40?'var(--amber)':'var(--red)'}">${r.latest_score}</td>
+        <td>${gradeHTML(r.annoyance_grade)}</td>
+        <td style="color:var(--text3)">${r.scan_count} scans</td>
+        <td style="color:var(--text3)">${formatDate(r.last_scanned)}</td>
+      </tr>
+    `).join('');
+  } else {
+    document.getElementById('d-recent').innerHTML = '<tr><td colspan="6" class="empty-state">No scans yet. Use Call Controls to start scanning.</td></tr>';
+  }
+}
+
+// ═══ TARGETS ═══
+async function loadTargets() {
+  const targets = await api('/api/targets');
+  if (!targets) return;
+
+  const filter = document.getElementById('targets-sector-filter').value;
+  const filtered = filter ? targets.filter(t => t.sector === filter) : targets;
+
+  // Populate sector filter
+  const sectors = [...new Set(targets.map(t => t.sector))].sort();
+  const sel = document.getElementById('targets-sector-filter');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">All Sectors</option>' + sectors.map(s => `<option value="${s}" ${s===current?'selected':''}>${s}</option>`).join('');
+
+  document.getElementById('targets-count').textContent = `Targets (${filtered.length})`;
+
+  // Populate dial dropdown
+  const dialSel = document.getElementById('dial-target');
+  dialSel.innerHTML = targets.map(t => `<option value="${t.name}">${t.name} (${t.sector})</option>`).join('');
+
+  document.getElementById('targets-tbody').innerHTML = filtered.length ? filtered.map(t => `
+    <tr>
+      <td style="font-weight:600;color:var(--text)">${t.name}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--text3)">${t.phone}</td>
+      <td><span class="badge badge-purple">${t.sector}</span></td>
+      <td>${statusBadge(t.status)}</td>
+      <td>
+        <button class="btn btn-sm" onclick="editTarget(${t.id},'${t.name}','${t.phone}','${t.sector}','${t.website||''}')">Edit</button>
+        <button class="btn btn-sm btn-red" onclick="deleteTarget(${t.id},'${t.name}')">✕</button>
+      </td>
+    </tr>
+  `).join('') : '<tr><td colspan="5" class="empty-state">No targets found</td></tr>';
+}
+
+function showAddTarget() {
+  document.getElementById('target-modal-title').textContent = 'Add Target';
+  document.getElementById('target-edit-id').value = '';
+  document.getElementById('tf-name').value = '';
+  document.getElementById('tf-phone').value = '';
+  document.getElementById('tf-sector').value = 'banking';
+  document.getElementById('tf-website').value = '';
+  document.getElementById('target-modal').classList.remove('hidden');
+}
+
+function editTarget(id, name, phone, sector, website) {
+  document.getElementById('target-modal-title').textContent = 'Edit Target';
+  document.getElementById('target-edit-id').value = id;
+  document.getElementById('tf-name').value = name;
+  document.getElementById('tf-phone').value = phone;
+  document.getElementById('tf-sector').value = sector;
+  document.getElementById('tf-website').value = website;
+  document.getElementById('target-modal').classList.remove('hidden');
+}
+
+async function saveTarget() {
+  const id = document.getElementById('target-edit-id').value;
+  const data = {
+    name: document.getElementById('tf-name').value,
+    phone: document.getElementById('tf-phone').value,
+    sector: document.getElementById('tf-sector').value,
+    website: document.getElementById('tf-website').value,
+  };
+  if (!data.name || !data.phone) { toast('Name and phone are required', 'error'); return; }
+
+  const res = await fetch(API_BASE + '/api/targets' + (id ? `/${id}` : ''), {
+    method: id ? 'PUT' : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+
+  if (res.ok) {
+    toast(id ? 'Target updated' : 'Target added', 'success');
+    closeModal('target-modal');
+    loadTargets();
+  } else {
+    toast('Failed to save target', 'error');
+  }
+}
+
+async function deleteTarget(id, name) {
+  if (!confirm(`Delete "${name}" from targets?`)) return;
+  const res = await fetch(API_BASE + `/api/targets/${id}`, { method: 'DELETE' });
+  if (res.ok) { toast('Target deleted', 'success'); loadTargets(); }
+  else toast('Failed to delete', 'error');
+}
+
+// ═══ SCANS ═══
+async function loadScans() {
+  const leaderboard = await api('/api/leaderboard');
+  if (!leaderboard || leaderboard.length === 0) {
+    document.getElementById('scans-tbody').innerHTML = '<tr><td colspan="9" class="empty-state">No scans completed yet</td></tr>';
+    return;
+  }
+
+  document.getElementById('scans-tbody').innerHTML = leaderboard.map(s => `
+    <tr>
+      <td style="font-weight:600;color:var(--text)">${s.name}</td>
+      <td style="font-family:'IBM Plex Mono';font-weight:700;color:${s.latest_score>=70?'var(--green)':s.latest_score>=40?'var(--amber)':'var(--red)'}">${s.latest_score}</td>
+      <td style="color:var(--text3)">—</td>
+      <td style="color:var(--text3)">—</td>
+      <td style="color:var(--text3)">—</td>
+      <td>${gradeHTML(s.annoyance_grade)}</td>
+      <td style="color:var(--text3)">—</td>
+      <td style="color:var(--text3)">${formatDate(s.last_scanned)}</td>
+      <td><button class="btn btn-sm" onclick="viewScanDetail(${s.target_id})">View</button></td>
+    </tr>
+  `).join('');
+}
+
+async function viewScanDetail(targetId) {
+  const scan = await api(`/api/scan/${targetId}`);
+  const el = document.getElementById('scan-detail-content');
+
+  if (!scan) {
+    el.innerHTML = '<p style="color:var(--text3)">No detailed scan data available for this target yet.</p>';
+  } else {
+    el.innerHTML = `
+      <div class="cards" style="margin-bottom:16px">
+        <div class="card"><div class="card-label">Overall</div><div class="card-value ${scan.governance_score>=70?'green':scan.governance_score>=40?'amber':'red'}">${scan.governance_score}/100</div></div>
+        <div class="card"><div class="card-label">Escape</div><div class="card-value cyan">${scan.escape_score||0}/40</div></div>
+        <div class="card"><div class="card-label">Disclosure</div><div class="card-value cyan">${scan.disclosure_score||0}/35</div></div>
+        <div class="card"><div class="card-label">Resolution</div><div class="card-value cyan">${scan.resolution_score||0}/25</div></div>
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="card-label" style="margin-bottom:8px">Annoyance Grade</div>
+        ${gradeHTML(scan.annoyance_grade)} <span style="font-size:13px;color:var(--text2);margin-left:8px">Index: ${scan.annoyance_index}</span>
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="card-label" style="margin-bottom:8px">Details</div>
+        <div style="font-size:13px;color:var(--text2)">
+          Duration: ${scan.duration_sec || 0}s · 
+          Human reached: ${scan.human_reached ? 'Yes' : 'No'} · 
+          Escape time: ${scan.escape_time_sec ? scan.escape_time_sec + 's' : 'N/A'} · 
+          Disclosures: ${scan.disclosure_found || 0}
+        </div>
+      </div>
+      ${scan.transcript ? `<div><div class="card-label" style="margin-bottom:8px">Transcript</div><div class="transcript">${scan.transcript}</div></div>` : ''}
+    `;
+  }
+
+  document.getElementById('scan-modal').classList.remove('hidden');
+}
+
+// ═══ ANALYTICS ═══
+async function loadAnalytics() {
+  const [stats, leaderboard] = await Promise.all([api('/api/stats'), api('/api/leaderboard')]);
+
+  if (leaderboard && leaderboard.length > 0) {
+    const sorted = [...leaderboard].sort((a,b) => b.latest_score - a.latest_score);
+    document.getElementById('a-best').textContent = sorted[0].name + ' (' + sorted[0].latest_score + ')';
+    document.getElementById('a-worst').textContent = sorted[sorted.length-1].name + ' (' + sorted[sorted.length-1].latest_score + ')';
+    document.getElementById('a-gradeA').textContent = leaderboard.filter(l => l.annoyance_grade === 'A').length;
+    document.getElementById('a-gradeF').textContent = leaderboard.filter(l => l.annoyance_grade === 'F').length;
+  }
+
+  // Sector chart
+  if (stats && stats.by_sector && stats.by_sector.length > 0) {
+    const colors = ['cyan','green','amber','red','purple','cyan','green','amber'];
+    document.getElementById('sector-chart').innerHTML = stats.by_sector.map((s, i) => `
+      <div class="bar-row">
+        <span class="bar-label">${s.sector}</span>
+        <div class="bar-track">
+          <div class="bar-fill ${colors[i%colors.length]}" style="width:${Math.round(s.avg_score)}%">${Math.round(s.avg_score)}</div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('component-chart').innerHTML = `
+      <div class="bar-row"><span class="bar-label">Escape (40%)</span><div class="bar-track"><div class="bar-fill cyan" style="width:65%">Avg across scans</div></div></div>
+      <div class="bar-row"><span class="bar-label">Disclosure (35%)</span><div class="bar-track"><div class="bar-fill green" style="width:40%">Avg across scans</div></div></div>
+      <div class="bar-row"><span class="bar-label">Resolution (25%)</span><div class="bar-track"><div class="bar-fill amber" style="width:50%">Avg across scans</div></div></div>
+    `;
+  } else {
+    document.getElementById('sector-chart').innerHTML = '<div class="empty-state">Run scans to see sector breakdown</div>';
+    document.getElementById('component-chart').innerHTML = '<div class="empty-state">Run scans to see component analysis</div>';
+  }
+}
+
+// ═══ CONTROLS ═══
+async function loadControls() {
+  const health = await api('/health');
+  if (health) {
+    document.getElementById('ctrl-active').textContent = health.activeCalls || 0;
+    document.getElementById('ctrl-scheduler').innerHTML = '<span style="color:var(--green)">● ACTIVE</span>';
+    schedulerActive = true;
+  }
+  const targets = await api('/api/targets');
+  if (targets) {
+    const pending = targets.filter(t => t.status === 'pending').length;
+    document.getElementById('ctrl-queue').textContent = pending;
+  }
+}
+
+async function manualDial() {
+  const target = document.getElementById('dial-target').value;
+  if (!target) { toast('Select a target', 'error'); return; }
+  document.getElementById('dial-status').textContent = 'Initiating call to ' + target + '...';
+  toast('Manual dial: ' + target + ' — Check server logs for call progress', 'success');
+  // In production, this would hit POST /api/dial with the target name
+}
+
+function toggleScheduler() {
+  schedulerActive = !schedulerActive;
+  document.getElementById('ctrl-scheduler').innerHTML = schedulerActive
+    ? '<span style="color:var(--green)">● ACTIVE</span>'
+    : '<span style="color:var(--red)">● PAUSED</span>';
+  toast('Scheduler ' + (schedulerActive ? 'activated' : 'paused'), 'success');
+}
+
+// ═══ LEGAL ═══
+function renderNoCallList() {
+  document.getElementById('nocall-status').textContent = noCallList.length + ' NUMBERS';
+  document.getElementById('nocall-list').innerHTML = noCallList.length
+    ? noCallList.map((n,i) => `<div class="phrase-tag" style="margin-bottom:4px">${n} <span class="remove" onclick="removeNoCall(${i})">✕</span></div>`).join('')
+    : '<div style="font-size:12px;color:var(--text3)">No numbers blacklisted</div>';
+}
+
+function addNoCall() {
+  const num = document.getElementById('nocall-input').value.trim();
+  if (!num) return;
+  noCallList.push(num);
+  localStorage.setItem('vg_nocall', JSON.stringify(noCallList));
+  document.getElementById('nocall-input').value = '';
+  renderNoCallList();
+  toast('Added to no-call list', 'success');
+}
+
+function removeNoCall(i) {
+  noCallList.splice(i, 1);
+  localStorage.setItem('vg_nocall', JSON.stringify(noCallList));
+  renderNoCallList();
+}
+
+function saveLegalConfig() {
+  const disclosure = document.getElementById('legal-disclosure').value;
+  localStorage.setItem('vg_disclosure', disclosure);
+  toast('Disclosure message saved', 'success');
+}
+
+// ═══ CONFIG ═══
+function renderConfig() {
+  document.getElementById('disclosure-phrases').innerHTML = disclosurePhrases.map((p, i) =>
+    `<span class="phrase-tag">${p} <span class="remove" onclick="removePhrase(${i})">✕</span></span>`
+  ).join('');
+  updateWeightDisplay();
+}
+
+function updateWeightDisplay() {
+  const e = document.getElementById('w-escape').value;
+  const d = document.getElementById('w-disclosure').value;
+  const r = document.getElementById('w-resolution').value;
+  document.getElementById('wv-escape').textContent = e + '%';
+  document.getElementById('wv-disclosure').textContent = d + '%';
+  document.getElementById('wv-resolution').textContent = r + '%';
+  const total = parseInt(e) + parseInt(d) + parseInt(r);
+  const totalEl = document.getElementById('w-total');
+  totalEl.textContent = total + '%';
+  totalEl.style.color = total === 100 ? 'var(--cyan)' : 'var(--red)';
+}
+
+function addPhrase() {
+  const phrase = document.getElementById('new-phrase').value.trim().toLowerCase();
+  if (!phrase || disclosurePhrases.includes(phrase)) return;
+  disclosurePhrases.push(phrase);
+  document.getElementById('new-phrase').value = '';
+  renderConfig();
+  toast('Phrase added', 'success');
+}
+
+function removePhrase(i) {
+  disclosurePhrases.splice(i, 1);
+  renderConfig();
+}
+
+function saveConfig() {
+  const total = parseInt(document.getElementById('w-escape').value) + parseInt(document.getElementById('w-disclosure').value) + parseInt(document.getElementById('w-resolution').value);
+  if (total !== 100) { toast('Weights must sum to 100%', 'error'); return; }
+  toast('Configuration saved', 'success');
+}
+
+// ═══ MODALS ═══
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.add('hidden'); });
+});
+
+// ═══ INIT ═══
+const savedDisclosure = localStorage.getItem('vg_disclosure');
+if (savedDisclosure) document.getElementById('legal-disclosure').value = savedDisclosure;
+</script>
+</body>
+</html>
