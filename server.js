@@ -21,6 +21,9 @@ db.pragma('journal_mode = WAL');
 // Active calls tracking
 const activeCalls = new Map();
 
+// Mount admin + client portal routes
+require('./admin-routes')(app, db, log);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
