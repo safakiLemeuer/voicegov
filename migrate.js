@@ -6,7 +6,7 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const crypto = require('crypto');
 
-const db = new Database(path.join(__dirname, '..', 'voicegov.db'));
+const db = new Database(path.join(__dirname, 'voicegov.db'));
 db.pragma('journal_mode = WAL');
 
 console.log('Running client portal migration...');

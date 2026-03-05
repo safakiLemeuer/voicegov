@@ -455,7 +455,7 @@ async function loadTargets() {
         <td class="td-main">${esc(t.name)}</td>
         <td style="color:var(--fog)">${esc(t.phone||'')}</td>
         <td><span class="badge badge-blue">${esc(t.sector||'')}</span></td>
-        <td>${t.active===0 ? '<span class="badge badge-gray">PAUSED</span>' : '<span class="badge badge-green">ACTIVE</span>'}</td>
+        <td>${t.status==='active'||!t.status ? '<span class="badge badge-green">ACTIVE</span>' : '<span class="badge badge-gray">'+t.status+'</span>'}</td>
         <td><div class="actions">
           <button class="btn btn-ghost btn-sm" onclick="dialTarget(${t.id},'${esc(t.name)}')">DIAL</button>
         </div></td>
