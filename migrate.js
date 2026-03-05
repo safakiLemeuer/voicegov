@@ -2,7 +2,6 @@
  * migrate.js — Add client portal columns to VoiceGov DB
  * Run once: node migrate.js
  */
-require('dotenv').config();
 const Database = require('better-sqlite3');
 const path = require('path');
 const crypto = require('crypto');
