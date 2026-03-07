@@ -48,12 +48,12 @@ input,select,textarea{font-family:'Poppins',sans-serif}
     </div>
     <!-- Nav links -->
     <div class="snav" style="display:flex;gap:2px;">
-      <button onclick="scrollTo('assess')" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;border:none;background:transparent;color:#78716C;transition:all .15s;" onmouseover="this.style.background='#F5F5F4';this.style.color='#1C1917'" onmouseout="this.style.background='transparent';this.style.color='#78716C'">Assessment</button>
-      <button onclick="scrollTo('frameworks')" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;border:none;background:transparent;color:#78716C;transition:all .15s;" onmouseover="this.style.background='#F5F5F4';this.style.color='#1C1917'" onmouseout="this.style.background='transparent';this.style.color='#78716C'">Frameworks</button>
-      <button onclick="scrollTo('packages')" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;border:none;background:transparent;color:#78716C;transition:all .15s;" onmouseover="this.style.background='#F5F5F4';this.style.color='#1C1917'" onmouseout="this.style.background='transparent';this.style.color='#78716C'">Packages</button>
-      <button onclick="scrollTo('contact')" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;border:none;background:transparent;color:#78716C;transition:all .15s;" onmouseover="this.style.background='#F5F5F4';this.style.color='#1C1917'" onmouseout="this.style.background='transparent';this.style.color='#78716C'">Work With Us</button>
+      <button onclick="scrollToSection('assess')" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;border:none;background:transparent;color:#78716C;transition:all .15s;" onmouseover="this.style.background='#F5F5F4';this.style.color='#1C1917'" onmouseout="this.style.background='transparent';this.style.color='#78716C'">Assessment</button>
+      <button onclick="scrollToSection('frameworks')" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;border:none;background:transparent;color:#78716C;transition:all .15s;" onmouseover="this.style.background='#F5F5F4';this.style.color='#1C1917'" onmouseout="this.style.background='transparent';this.style.color='#78716C'">Frameworks</button>
+      <button onclick="scrollToSection('packages')" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;border:none;background:transparent;color:#78716C;transition:all .15s;" onmouseover="this.style.background='#F5F5F4';this.style.color='#1C1917'" onmouseout="this.style.background='transparent';this.style.color='#78716C'">Packages</button>
+      <button onclick="scrollToSection('contact')" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;border:none;background:transparent;color:#78716C;transition:all .15s;" onmouseover="this.style.background='#F5F5F4';this.style.color='#1C1917'" onmouseout="this.style.background='transparent';this.style.color='#78716C'">Work With Us</button>
     </div>
-    <button onclick="scrollTo('assess')" style="padding:10px 22px;background:#0E7490;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 12px rgba(14,116,144,.3);transition:all .2s;" onmouseover="this.style.background='#155E75'" onmouseout="this.style.background='#0E7490'">Run Diagnostic</button>
+    <button onclick="scrollToSection('assess')" style="padding:10px 22px;background:#0E7490;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 12px rgba(14,116,144,.3);transition:all .2s;" onmouseover="this.style.background='#155E75'" onmouseout="this.style.background='#0E7490'">Run Diagnostic</button>
   </div>
 </nav>
 
@@ -77,7 +77,7 @@ input,select,textarea{font-family:'Poppins',sans-serif}
       <button onclick="startAssessment()" style="padding:15px 36px;background:#0E7490;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:15px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 4px 20px rgba(14,116,144,.35);transition:all .2s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(14,116,144,.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 20px rgba(14,116,144,.35)'">
         Start Diagnostic &rarr;
       </button>
-      <button onclick="scrollTo('frameworks')" style="padding:15px 28px;background:#fff;color:#1C1917;border:1.5px solid #E7E5E4;border-radius:12px;cursor:pointer;font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;transition:all .2s;" onmouseover="this.style.borderColor='#0E7490';this.style.color='#0E7490'" onmouseout="this.style.borderColor='#E7E5E4';this.style.color='#1C1917'">
+      <button onclick="scrollToSection('frameworks')" style="padding:15px 28px;background:#fff;color:#1C1917;border:1.5px solid #E7E5E4;border-radius:12px;cursor:pointer;font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;transition:all .2s;" onmouseover="this.style.borderColor='#0E7490';this.style.color='#0E7490'" onmouseout="this.style.borderColor='#E7E5E4';this.style.color='#1C1917'">
         View Frameworks
       </button>
     </div>
@@ -393,7 +393,7 @@ input,select,textarea{font-family:'Poppins',sans-serif}
             <div style="font-size:12px;color:#44403C;display:flex;gap:7px;"><span style="color:#0E7490;font-weight:700;">&#10003;</span> 90-day remediation roadmap</div>
           </div>
         </div>
-        <button onclick="scrollTo('contact')" style="margin-top:20px;width:100%;padding:12px;background:#fff;color:#0E7490;border:1.5px solid #0E7490;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;transition:all .2s;" onmouseover="this.style.background='#F0FDFE'" onmouseout="this.style.background='#fff'">Get Started</button>
+        <button onclick="scrollToSection('contact')" style="margin-top:20px;width:100%;padding:12px;background:#fff;color:#0E7490;border:1.5px solid #0E7490;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;transition:all .2s;" onmouseover="this.style.background='#F0FDFE'" onmouseout="this.style.background='#fff'">Get Started</button>
       </div>
       <!-- Package 2 — popular -->
       <div style="background:#fff;border:2px solid #0E7490;border-radius:20px;padding:28px;position:relative;box-shadow:0 8px 32px rgba(14,116,144,.15);">
@@ -413,7 +413,7 @@ input,select,textarea{font-family:'Poppins',sans-serif}
             <div style="font-size:12px;color:#44403C;display:flex;gap:7px;"><span style="color:#0E7490;font-weight:700;">&#10003;</span> Board-ready governance deck</div>
           </div>
         </div>
-        <button onclick="scrollTo('contact')" style="margin-top:20px;width:100%;padding:12px;background:#0E7490;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 12px rgba(14,116,144,.3);transition:all .2s;" onmouseover="this.style.background='#155E75'" onmouseout="this.style.background='#0E7490'">Get Started</button>
+        <button onclick="scrollToSection('contact')" style="margin-top:20px;width:100%;padding:12px;background:#0E7490;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 12px rgba(14,116,144,.3);transition:all .2s;" onmouseover="this.style.background='#155E75'" onmouseout="this.style.background='#0E7490'">Get Started</button>
       </div>
       <!-- Package 3 -->
       <div style="background:#FAFAF9;border:1px solid #E7E5E4;border-radius:20px;padding:28px;">
@@ -432,7 +432,7 @@ input,select,textarea{font-family:'Poppins',sans-serif}
             <div style="font-size:12px;color:#44403C;display:flex;gap:7px;"><span style="color:#7C3AED;font-weight:700;">&#10003;</span> Dedicated engagement manager</div>
           </div>
         </div>
-        <button onclick="scrollTo('contact')" style="margin-top:20px;width:100%;padding:12px;background:#fff;color:#7C3AED;border:1.5px solid #7C3AED;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;transition:all .2s;" onmouseover="this.style.background='#F5F3FF'" onmouseout="this.style.background='#fff'">Get Started</button>
+        <button onclick="scrollToSection('contact')" style="margin-top:20px;width:100%;padding:12px;background:#fff;color:#7C3AED;border:1.5px solid #7C3AED;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;transition:all .2s;" onmouseover="this.style.background='#F5F3FF'" onmouseout="this.style.background='#fff'">Get Started</button>
       </div>
     </div>
   </div>
@@ -549,7 +549,7 @@ window.addEventListener('scroll', () => {
   }
 }, {passive: true});
 
-function scrollTo(id) {
+function scrollToSection(id) {
   document.getElementById(id)?.scrollIntoView({behavior: 'smooth'});
 }
 
@@ -910,7 +910,7 @@ function showResults() {
     <div style="font-size:18px;font-weight:800;color:#1C1917;margin-bottom:4px;">${pkg.name}</div>
     <div style="font-size:24px;font-weight:900;color:#0E7490;font-family:'DM Mono',monospace;margin-bottom:10px;">${pkg.price} <span style="font-size:13px;font-weight:400;color:#A8A29E;">/ ${pkg.hrs}</span></div>
     <p style="font-size:13px;color:#44403C;line-height:1.6;margin-bottom:18px;">${pkg.what}</p>
-    <button onclick="scrollTo('contact')" style="padding:12px 28px;background:#0E7490;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 12px rgba(14,116,144,.3);">Book a Discovery Call &rarr;</button>
+    <button onclick="scrollToSection('contact')" style="padding:12px 28px;background:#0E7490;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 12px rgba(14,116,144,.3);">Book a Discovery Call &rarr;</button>
   </div>
 
   <div style="text-align:center;margin-top:8px;">
@@ -928,6 +928,15 @@ function showResults() {
 
 function resetAssessment() {
   state = { step: 0, answers: {}, intake: {}, startTime: null, selectedPains: [] };
+  // Re-render pain buttons to deselected state
+  const c = document.getElementById('pains-container');
+  if (c) {
+    c.querySelectorAll('button').forEach(btn => {
+      btn.style.background = '#fff';
+      btn.style.borderColor = '#E7E5E4';
+      btn.style.color = '#44403C';
+    });
+  }
   show('assess-landing');
   document.getElementById('assess').scrollIntoView({behavior: 'smooth'});
 }
