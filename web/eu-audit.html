@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>European Voice AI Compliance Audit — TheBHTLabs</title>
 <meta name="description" content="The only live diagnostic that scores your voice AI system against EU AI Act, GDPR Article 22, ISO/IEC 42001:2023, and NIST AI RMF 2.0 simultaneously. August 2026 enforcement is coming.">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<!-- Arial system font stack — no external dependency -->
 <style>
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -21,9 +21,8 @@
    #D4372B  Enforcement red — violations only
    
    Type:
-   Cormorant Garamond — editorial serif (Henderson-equivalent)
-   Source Sans 3 — clean neutral body (bcg.com body weight)
-   Source Code Pro — regulatory citations, data labels
+   Arial / Helvetica Neue — clean system sans-serif throughout
+   Courier New — regulatory citations, data labels
    
    Rules: No rounded corners. No shadows. No gradients.
    No decorative elements. Typography does all the work.
@@ -49,9 +48,9 @@
   --amber:      #B86A00;
   --amber-bg:   #FDF7ED;
 
-  --serif:  'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --sans:   'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
-  --mono:   'Source Code Pro', 'Courier New', monospace;
+  --serif:  Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  --sans:   Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  --mono:   'Courier New', Courier, monospace;
 }
 
 html { scroll-behavior: smooth; }
@@ -946,57 +945,57 @@ body {
 <section class="section section-alt" id="gap-analysis">
   <div class="inner">
     <p class="section-label">BCG-GRADE GAP ANALYSIS</p>
-    <h2 class="section-h2">What your India audit <em>doesn't cover</em><br>— and what it costs you if you miss it</h2>
-    <p class="section-sub">The India compliance framework (TCPA, FTC AI, NIST AI RMF, ADA, WCAG) covers the US market well. Here is every material gap when operating in Europe or serving European customers.</p>
+    <h2 class="section-h2">What most voice AI deployments<br><em>do not cover</em> — and what it costs you</h2>
+    <p class="section-sub">Standard compliance frameworks address data protection in isolation. Here is every material gap specific to voice AI operating in Europe or serving European customers under EU AI Act, GDPR, ePrivacy, and ISO 42001.</p>
     <div class="divider"></div>
 
     <div class="assessment-grid">
       <div class="assessment-cell verdict-fail">
         <div class="cell-framework">EU AI ACT — TRANSPARENCY</div>
-        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--red)"></span><span style="color:var(--red);font-family:var(--mono);font-size:12px;letter-spacing:2px">NOT COVERED IN INDIA AUDIT</span></div>
-        <div class="cell-finding">Article 50 requires AI systems interacting with humans to disclose their AI nature "in a clear and distinguishable manner" before the interaction — stronger than FTC guidance. US audit checks for disclosure but not the EU's specific timing, clarity, and acknowledgment requirements. Voice AI systems must additionally disclose the identity of the deploying natural or legal person on request.</div>
+        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--red)"></span><span style="color:var(--red);font-family:var(--mono);font-size:12px;letter-spacing:2px">CRITICAL GAP — NOT ADDRESSED</span></div>
+        <div class="cell-finding">Article 50 requires AI systems interacting with humans to disclose their AI nature in a clear and distinguishable manner before the interaction begins. Voice AI systems must also disclose the identity of the deploying organisation on request. Generic privacy notices do not satisfy this requirement.</div>
         <div class="cell-penalty">PENALTY: Up to €15M or 3% global turnover · Art. 50 EU AI Act</div>
       </div>
       <div class="assessment-cell verdict-fail">
         <div class="cell-framework">GDPR ARTICLE 22 — AUTOMATED DECISIONS</div>
-        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--red)"></span><span style="color:var(--red);font-family:var(--mono);font-size:12px;letter-spacing:2px">NOT COVERED IN INDIA AUDIT</span></div>
-        <div class="cell-finding">Any voice AI that makes or materially influences decisions about individuals — insurance claims routing, credit inquiries, healthcare triage — triggers Art. 22 rights. Callers have the right to human review, meaningful explanation, and to contest the outcome. The US audit has no equivalent check. This is one of the highest-enforcement GDPR provisions.</div>
+        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--red)"></span><span style="color:var(--red);font-family:var(--mono);font-size:12px;letter-spacing:2px">CRITICAL GAP — NOT ADDRESSED</span></div>
+        <div class="cell-finding">Any voice AI that makes or materially influences decisions about individuals — insurance claims routing, credit inquiries, healthcare triage — triggers Article 22 rights. Callers have the right to human review, meaningful explanation, and to contest the outcome. This is one of the highest-enforcement provisions in GDPR.</div>
         <div class="cell-penalty">PENALTY: Up to €20M or 4% global turnover · GDPR Art. 83(4)</div>
       </div>
       <div class="assessment-cell verdict-fail">
         <div class="cell-framework">ePRIVACY DIRECTIVE — CALL RECORDING CONSENT</div>
-        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--red)"></span><span style="color:var(--red);font-family:var(--mono);font-size:12px;letter-spacing:2px">NOT COVERED IN INDIA AUDIT</span></div>
-        <div class="cell-finding">US TCPA handles unsolicited calls. The EU ePrivacy Directive goes further: explicit informed consent required before recording, strict opt-in for automated marketing calls, and separate consent for voice biometric processing. Many US-trained IVRs record by default — this is illegal without active consent disclosure under EU law in most member states.</div>
+        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--red)"></span><span style="color:var(--red);font-family:var(--mono);font-size:12px;letter-spacing:2px">CRITICAL GAP — NOT ADDRESSED</span></div>
+        <div class="cell-finding">The ePrivacy Directive requires explicit informed consent before any call recording, strict opt-in for automated marketing calls, and separate consent for voice biometric processing. IVR systems that record by default without active consent disclosure are operating illegally under EU law in most member states.</div>
         <div class="cell-penalty">PENALTY: Varies by member state; Germany up to €300K per violation</div>
       </div>
       <div class="assessment-cell verdict-fail">
         <div class="cell-framework">ISO/IEC 42001:2023 — AI MANAGEMENT SYSTEM</div>
-        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--red)"></span><span style="color:var(--red);font-family:var(--mono);font-size:12px;letter-spacing:2px">NOT COVERED IN INDIA AUDIT</span></div>
-        <div class="cell-finding">ISO 42001 is the first international AI management system standard and the primary conformity mechanism referenced by EU AI Act notified bodies. The India audit maps to NIST AI RMF 100-1 and 600-1 but has no ISO 42001 control mapping. EU enterprise buyers are beginning to require ISO 42001 certification or equivalence as a procurement condition.</div>
+        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--red)"></span><span style="color:var(--red);font-family:var(--mono);font-size:12px;letter-spacing:2px">CRITICAL GAP — NOT ADDRESSED</span></div>
+        <div class="cell-finding">ISO 42001 is the primary AI management system standard referenced by EU AI Act notified bodies. Most existing compliance frameworks have no ISO 42001 control mapping. EU enterprise procurement teams are now requiring ISO 42001 certification or documented equivalence as a vendor qualification condition.</div>
         <div class="cell-penalty">COMMERCIAL RISK: Loss of EU enterprise procurement eligibility</div>
       </div>
       <div class="assessment-cell verdict-gap">
         <div class="cell-framework">NIST AI RMF 2.0 — SUPPLY CHAIN & GenAI</div>
-        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--amber)"></span><span style="color:var(--green-lt);font-family:var(--mono);font-size:12px;letter-spacing:2px">PARTIALLY COVERED — GAP EXISTS</span></div>
-        <div class="cell-finding">India audit covers NIST AI RMF 100-1 and 600-1. The March 2025 update added model provenance, third-party AI component assessment, and supply chain risk — not yet in the India framework. For voice AI using Deepgram, Twilio, or Azure AI, the organization deploying the IVR is the "deployer" under EU AI Act and bears responsibility for third-party model compliance.</div>
+        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--amber)"></span><span style="color:var(--amber);font-family:var(--mono);font-size:12px;letter-spacing:2px">PARTIALLY ADDRESSED — GAP EXISTS</span></div>
+        <div class="cell-finding">NIST AI RMF 2025 added model provenance, third-party AI component assessment, and supply chain risk. For voice AI using Deepgram, Twilio, or Azure AI, the deploying organisation is the EU AI Act "deployer" and bears full responsibility for third-party model compliance — regardless of vendor contractual terms.</div>
         <div class="cell-penalty">REGULATORY RISK: Deployer liability for third-party AI components under Art. 25</div>
       </div>
       <div class="assessment-cell verdict-gap">
         <div class="cell-framework">EU AI ACT — RISK CLASSIFICATION ASSESSMENT</div>
-        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--amber)"></span><span style="color:var(--green-lt);font-family:var(--mono);font-size:12px;letter-spacing:2px">PARTIALLY COVERED — GAP EXISTS</span></div>
-        <div class="cell-finding">The EU AI Act requires a formal risk classification before deployment. Voice AI used in insurance, healthcare, financial services, or access to essential services is likely classified as high-risk under Annex III. High-risk systems require conformity assessment, technical documentation, CE marking, and EU database registration before August 2026. No equivalent classification check exists in the India audit.</div>
+        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--amber)"></span><span style="color:var(--amber);font-family:var(--mono);font-size:12px;letter-spacing:2px">PARTIALLY ADDRESSED — GAP EXISTS</span></div>
+        <div class="cell-finding">The EU AI Act requires a formal risk classification before deployment. Voice AI used in insurance, healthcare, financial services, or access to essential services is likely classified as high-risk under Annex III. High-risk systems require conformity assessment, technical documentation, CE marking, and EU database registration before August 2026.</div>
         <div class="cell-penalty">PENALTY: Up to €30M or 6% global turnover for unregistered high-risk systems</div>
       </div>
       <div class="assessment-cell verdict-pass">
         <div class="cell-framework">DISCLOSURE TIMING — COVERED WITH UPGRADE</div>
-        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--green)"></span><span style="color:var(--green);font-family:var(--mono);font-size:12px;letter-spacing:2px">INDIA AUDIT COVERS · EU REQUIRES STRONGER TEST</span></div>
-        <div class="cell-finding">The India audit's AI disclosure check (35 pts) maps to FTC guidelines and tests for presence of disclosure. EU AI Act Art. 50 requires disclosure "before the interaction begins" and in a manner that cannot be missed. The European audit upgrades this to test timing precision (within first 10 seconds), clarity score, and acknowledgment capability.</div>
+        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--green)"></span><span style="color:var(--green);font-family:var(--mono);font-size:12px;letter-spacing:2px">ADDRESSED — EU REQUIRES STRONGER STANDARD</span></div>
+        <div class="cell-finding">Standard AI disclosure checks test for presence of a disclosure statement. EU AI Act Art. 50 requires disclosure before the interaction begins, in a manner that cannot be missed. The European audit tests timing precision (within the first 10 seconds), clarity score, and acknowledgment capability — a materially higher bar.</div>
         <div class="cell-penalty">UPGRADE: Timing-gated disclosure scoring replaces binary pass/fail</div>
       </div>
       <div class="assessment-cell verdict-pass">
         <div class="cell-framework">HUMAN ESCAPE PATH — COVERED WITH UPGRADE</div>
-        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--green)"></span><span style="color:var(--green);font-family:var(--mono);font-size:12px;letter-spacing:2px">INDIA AUDIT COVERS · EU REQUIRES STRONGER TEST</span></div>
-        <div class="cell-finding">The India audit's escape path check (40 pts) covers TCPA right-to-agent standards. GDPR Art. 22 and EU AI Act require that for automated decision-making, human intervention is not merely available but actively presented to the caller. The European audit adds a check for proactive human offer — not just passive availability.</div>
+        <div class="cell-verdict"><span class="verdict-dot" style="background:var(--green)"></span><span style="color:var(--green);font-family:var(--mono);font-size:12px;letter-spacing:2px">ADDRESSED — EU REQUIRES STRONGER STANDARD</span></div>
+        <div class="cell-finding">Basic compliance checks test whether a human escalation path exists. GDPR Art. 22 and EU AI Act require that for automated decision-making, human intervention is actively presented to the caller — not merely available. The European audit adds a check for proactive human offer, not passive availability.</div>
         <div class="cell-penalty">UPGRADE: Proactive human offer check added to escape scoring</div>
       </div>
     </div>
@@ -1006,7 +1005,7 @@ body {
     <table class="gap-table">
       <thead>
         <tr>
-          <th>REQUIREMENT</th><th>REGULATION</th><th>INDIA AUDIT</th><th>EU AUDIT</th><th>MAX PENALTY</th>
+          <th>REQUIREMENT</th><th>REGULATION</th><th>STANDARD PRACTICE</th><th>EU STANDARD</th><th>MAX PENALTY</th>
         </tr>
       </thead>
       <tbody>
@@ -1280,7 +1279,7 @@ const QUESTIONS = [
   {
     id:'q1', group:'EU AI ACT · TRANSPARENCY & DISCLOSURE', groupLabel:'EU AI ACT 2024/1689 — ART. 50',
     text:'When a caller first connects, does your voice AI identify itself as an AI system — within the first 10 seconds, before any data collection begins?',
-    frameworks:['EU AI ACT ART.50','FTC AI'],
+    frameworks:['EU AI ACT ART.50','GDPR ART.5'],
     options:[
       {label:'Yes — within 10 seconds',val:'yes',score:10,type:'pass'},
       {label:'Yes — but later in the call',val:'partial',score:4,type:'warn'},
@@ -1641,7 +1640,7 @@ function sbar(label, val, max, color) {
 function buildFindings(v, s) {
   const findings = [];
   if (!s['q1'] || s['q1'] < 5)
-    findings.push({severity:'critical',issue:'AI disclosure too late or absent',detail:'EU AI Act Art. 50 requires disclosure before the interaction begins — not after data collection starts. Your system does not meet this standard.',regs:['EU AI ACT ART.50','FTC AI GUIDE']});
+    findings.push({severity:'critical',issue:'AI disclosure too late or absent',detail:'EU AI Act Art. 50 requires disclosure before the interaction begins — not after data collection starts. Your system does not meet this standard.',regs:['EU AI ACT ART.50','GDPR ART.5']});
   if (s['q5'] === 0 || v['q5'] === 'gap')
     findings.push({severity:'critical',issue:'Art. 22 rights not implemented',detail:'Your voice AI influences automated decisions without the required GDPR Art. 22 right to human review, explanation, and contest. This is an active enforcement risk.',regs:['GDPR ART.22','EU AI ACT ART.14']});
   if (v['q7'] === 'no')
